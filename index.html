@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የመጽሐፍ ቅዱስ ቻትቦት</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.light-mode {
+            background-color: #f0f0f0;
+            color: #1e1e1e;
+        }
+        .intro-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: inherit;
+            z-index: 20;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .intro-card {
+            background-color: #1e1e1e;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        .light-mode .intro-card {
+            background-color: #ffffff;
+            color: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .main-app {
+            height: 90vh;
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px;
+            background-color: #1e1e1e;
+            border-radius: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            display: none;
+            gap: 24px;
+            overflow: hidden;
+        }
+        .light-mode .main-app {
+            background-color: #ffffff;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+        }
+        .main-app.active {
+            display: flex;
+        }
+        .menu-sidebar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 10;
+            width: 300px;
+            background-color: #2d2d2d;
+            border-right: 1px solid #333333;
+            border-radius: 1.5rem;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease, width 0.3s ease;
+        }
+        .light-mode .menu-sidebar {
+            background-color: #e0e0e0;
+            border-right: 1px solid #cccccc;
+        }
+        .menu-sidebar.visible {
+            transform: translateX(0);
+        }
+        .main-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-view, .text-view {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+        .chat-view.active, .text-view.active {
+            display: flex;
+        }
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            background-color: #2d2d2d;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .light-mode .chat-history {
+            background-color: #e0e0e0;
+        }
+        .user-message {
+            background-color: #4a90e2;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 1rem 1rem 0.25rem 1rem;
+            align-self: flex-end;
+            max-width: 80%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .bot-message {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            padding: 12px 16px;
+            border-radius: 1rem 1rem 1rem 0.25rem;
+            align-self: flex-start;
+            max-width: 80%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .light-mode .bot-message {
+            background-color: #e0e0e0;
+            color: #1e1e1e;
+        }
+        .input-area {
+            display: flex;
+            gap: 8px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 1rem;
+            border: 1px solid #555555;
+            background-color: #333333;
+            color: #e0e0e0;
+        }
+        .light-mode .input-area input {
+            background-color: #cccccc;
+            color: #1e1e1e;
+            border-color: #aaaaaa;
+        }
+        .input-area button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .input-area button:hover {
+            background-color: #357bd1;
+        }
+        .menu-btn {
+            background-color: #444444;
+            color: #e0e0e0;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+        .light-mode .menu-btn {
+            background-color: #cccccc;
+            color: #1e1e1e;
+        }
+        .menu-btn:hover {
+            background-color: #555555;
+            transform: translateY(-2px);
+        }
+        .light-mode .menu-btn:hover {
+            background-color: #bbbbbb;
+        }
+        .text-content {
+            white-space: pre-wrap;
+            background-color: #2d2d2d;
+            padding: 24px;
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+            line-height: 1.8;
+            overflow-y: auto;
+            color: #e0e0e0;
+        }
+        .light-mode .text-content {
+            background-color: #e0e0e0;
+            color: #1e1e1e;
+        }
+        .loading {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6495ED;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .menu-toggle-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 15;
+            background-color: #444444;
+            color: #e0e0e0;
+            padding: 12px;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+        .light-mode .menu-toggle-btn {
+            background-color: #cccccc;
+            color: #1e1e1e;
+        }
+        .menu-toggle-btn:hover {
+            background-color: #555555;
+        }
+        .light-mode .menu-toggle-btn:hover {
+            background-color: #bbbbbb;
+        }
+        .settings-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid #333333;
+            margin-top: 24px;
+        }
+        .light-mode .settings-section {
+            border-color: #cccccc;
+        }
+        .settings-section label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .main-app {
+                flex-direction: column;
+                height: auto;
+                min-height: 90vh;
+                padding: 16px;
+            }
+            .menu-sidebar {
+                width: 75%;
+            }
+            .main-content-area {
+                padding-top: 50px;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 min-h-screen flex items-center justify-center">
+
+    <!-- Initial Name Prompt Screen -->
+    <div id="intro-screen" class="intro-container">
+        <div class="intro-card">
+            <h1 id="intro-title" class="text-3xl font-bold text-white mb-4">እንኳን በደህና መጡ!</h1>
+            <p id="intro-subtitle" class="text-gray-400 mb-6">ስምዎን በማስገባት ጉዞዎን ይጀምሩ።</p>
+            <input type="text" id="user-name-input" placeholder="ስምዎን ያስገቡ" class="w-full px-4 py-2 mb-4 rounded-lg border-2 border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500">
+            <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">ይጀምሩ</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="main-app">
+        <!-- Menu Toggle Button -->
+        <button id="menu-toggle-btn" class="menu-toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar for Menu -->
+        <div id="menu-sidebar" class="menu-sidebar">
+            <h2 id="menu-title" class="text-2xl font-bold text-white mb-4">የመጽሐፍ ቅዱስ ማውጫ</h2>
+            <div id="menu-content" class="flex-1 overflow-y-auto grid gap-2">
+                <!-- Menu content will be dynamically loaded here -->
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="settings-section">
+                <label id="language-label" for="language-select">ቋንቋ:</label>
+                <select id="language-select" class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white">
+                    <option value="am">አማርኛ</option>
+                    <option value="en">English</option>
+                    <option value="om">Oromoo</option>
+                </select>
+
+                <div class="flex items-center justify-between">
+                    <span id="brightness-label">የብርሃን ሁነታ:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                
+                <button id="restart-btn" class="menu-btn mt-4"><i class="fas fa-redo-alt"></i> ዳግም ጀምር</button>
+            </div>
+            <button id="show-chat-btn" class="menu-btn mt-4">ወደ ቻት ተመለስ</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content-area">
+            <!-- Chat View -->
+            <div id="chat-view" class="chat-view active">
+                <div id="chat-history" class="chat-history">
+                    <!-- Initial greeting will be added here via JS -->
+                </div>
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="ጥያቄዎን እዚህ ይጻፉ...">
+                    <button id="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Text View -->
+            <div id="text-view" class="text-view">
+                <div class="flex items-center justify-between mb-4">
+                    <button id="text-view-back-btn" class="menu-btn back-btn px-4 py-2 flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> <span id="back-text">ወደ ኋላ</span>
+                    </button>
+                    <h3 id="text-view-title" class="text-xl font-bold text-center flex-1"></h3>
+                    <div style="width: 80px;"></div>
+                </div>
+                <div id="text-view-content" class="text-content flex-1">
+                    <!-- Chapter text will be loaded here -->
+                </div>
+                <div class="flex justify-between mt-4">
+                    <button id="prev-page-btn" class="menu-btn"><i class="fas fa-chevron-left"></i> <span id="prev-page-text">የኋላ</span></button>
+                    <span id="page-info" class="self-center font-bold text-gray-400"></span>
+                    <button id="next-page-btn" class="menu-btn"><span id="next-page-text">ቀጣይ</span> <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        const userNameInput = document.getElementById('user-name-input');
+        const startBtn = document.getElementById('start-btn');
+        const mainApp = document.getElementById('main-app');
+        const restartBtn = document.getElementById('restart-btn');
+
+        const menuSidebar = document.getElementById('menu-sidebar');
+        const menuToggleBtn = document.getElementById('menu-toggle-btn');
+        const menuContent = document.getElementById('menu-content');
+        const chatView = document.getElementById('chat-view');
+        const textView = document.getElementById('text-view');
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const showChatBtn = document.getElementById('show-chat-btn');
+        const textViewBackBtn = document.getElementById('text-view-back-btn');
+        const textViewTitle = document.getElementById('text-view-title');
+        const textViewContent = document.getElementById('text-view-content');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const pageInfo = document.getElementById('page-info');
+        const languageSelect = document.getElementById('language-select');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        const introTitle = document.getElementById('intro-title');
+        const introSubtitle = document.getElementById('intro-subtitle');
+        const menuTitle = document.getElementById('menu-title');
+        const languageLabel = document.getElementById('language-label');
+        const brightnessLabel = document.getElementById('brightness-label');
+        const backText = document.getElementById('back-text');
+        const prevPageText = document.getElementById('prev-page-text');
+        const nextPageText = document.getElementById('next-page-text');
+
+        const apiKey = "AIzaSyDh_TkOct7HSfhlJeSYJ15sLxPKPTHFH8Q"; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let currentChapterText = [];
+        let currentPage = 0;
+        let userName = '';
+        let currentLanguage = 'am';
+
+        const translations = {
+            am: {
+                introTitle: "እንኳን በደህና መጡ!",
+                introSubtitle: "ስምዎን በማስገባት ጉዞዎን ይጀምሩ።",
+                userNamePlaceholder: "ስምዎን ያስገቡ",
+                startBtn: "ይጀምሩ",
+                menuTitle: "የመጽሐፍ ቅዱስ ማውጫ",
+                languageLabel: "ቋንቋ:",
+                brightnessLabel: "የብርሃን ሁነታ:",
+                restartBtn: "ዳግም ጀምር",
+                showChatBtn: "ወደ ቻት ተመለስ",
+                userInputPlaceholder: "ጥያቄዎን እዚህ ይጻፉ...",
+                backText: "ወደ ኋላ",
+                prevPageText: "የኋላ",
+                nextPageText: "ቀጣይ",
+                loadingText: "በመጫን ላይ...",
+                errorText: "ስህተት",
+                errorMessage: "ይቅርታ፣ ጽሑፉን በመጫን ላይ ስህተት ተፈጥሯል። እባክዎን ቆይተው እንደገና ይሞክሩ።",
+                initialGreeting: (name) => `ሰላም ${name}! በመጽሐፍ ቅዱስ ጉዞዎ እንኳን ደህና መጡ። ጥያቄዎችዎን መጠየቅ ወይም ከመጽሐፍ ቅዱስ ማውጫ ውስጥ አንድ ምዕራፍ መምረጥ ይችላሉ።`,
+                chatErrorMessage: "ይቅርታ፣ መልስ ለማግኘት አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
+                noChapterText: (book, chapter) => `የ${book} ምዕራፍ ${chapter}ን ጽሑፍ ማግኘት አልተቻለም።`,
+                pageInfo: (current, total) => `ገጽ ${current} ከ ${total}`
+            },
+            en: {
+                introTitle: "Welcome!",
+                introSubtitle: "Enter your name to start your journey.",
+                userNamePlaceholder: "Enter your name",
+                startBtn: "Start",
+                menuTitle: "Bible Index",
+                languageLabel: "Language:",
+                brightnessLabel: "Brightness Mode:",
+                restartBtn: "Restart",
+                showChatBtn: "Back to Chat",
+                userInputPlaceholder: "Type your question here...",
+                backText: "Back",
+                prevPageText: "Previous",
+                nextPageText: "Next",
+                loadingText: "Loading...",
+                errorText: "Error",
+                errorMessage: "Sorry, an error occurred while loading the text. Please try again later.",
+                initialGreeting: (name) => `Hello ${name}! Welcome to your Bible journey. You can ask your questions or select a chapter from the index.`,
+                chatErrorMessage: "Sorry, no response could be found. Please try again.",
+                noChapterText: (book, chapter) => `Could not find the text for ${book} chapter ${chapter}.`,
+                pageInfo: (current, total) => `Page ${current} of ${total}`
+            },
+            om: {
+                introTitle: "Nagaa hin qabaatin!",
+                introSubtitle: "Maqaa kee galchuun imala kee jalqabi.",
+                userNamePlaceholder: "Maqaa kee galchi",
+                startBtn: "Jalqabi",
+                menuTitle: "Galmee Macaafa Qulqulluu",
+                languageLabel: "Afaan:",
+                brightnessLabel: "Haala Ifaa:",
+                restartBtn: "Irra deebi'i",
+                showChatBtn: "Gara Wal'aansoo deebi'i",
+                userInputPlaceholder: "Gaaffii kee asitti barreessi...",
+                backText: "Duuba",
+                prevPageText: "Isa duraa",
+                nextPageText: "Itti aanu",
+                loadingText: "Fe'amaa jira...",
+                errorText: "Dogoggora",
+                errorMessage: "Dhiifama, dogoggorri barreeffama fe'uuf ooleera. Erga turtii booda irra deebi'i.",
+                initialGreeting: (name) => `Nagaa ${name}! Imala Macaafa Qulqulluu kee irratti si simanna. Gaaffiiwwan kee gaafachuu yookaan boqonnaa galmee irraa filachuu dandeessa.`,
+                chatErrorMessage: "Dhiifama, deebiin hin arganne. Irra deebi'i.",
+                noChapterText: (book, chapter) => `Barreeffamni ${book} boqonnaa ${chapter} hin arganne.`,
+                pageInfo: (current, total) => `Fuula ${current} keessaa ${total}`
+            }
+        };
+
+        const books = {
+            'ብሉይ ኪዳን': {
+                'ኦሪት ዘፍጥረት': 50, 'ኦሪት ዘጸአት': 40, 'ኦሪት ዘሌዋውያን': 27, 'ኦሪት ዘኍልቍ': 36, 'ኦሪት ዘዳግም': 34,
+                'መጽሐፈ ኢያሱ': 24, 'መጽሐፈ መሣፍንት': 21, 'መጽሐፈ ሩት': 4, '1ኛ ሳሙኤል': 31, '2ኛ ሳሙኤል': 24,
+                '1ኛ ነገሥት': 22, '2ኛ ነገሥት': 25, '1ኛ ዜና መዋዕል': 29, '2ኛ ዜና መዋዕል': 36, 'መጽሐፈ ዕዝራ': 10,
+                'መጽሐፈ ነህምያ': 13, 'መጽሐፈ አስቴር': 10, 'መጽሐፈ ኢዮብ': 42, 'መዝሙረ ዳዊት': 150, 'መጽሐፈ ምሳሌ': 31,
+                'መጽሐፈ መክብብ': 12, 'መኃልየ መኃልይ ዘሰሎሞን': 8, 'ትንቢተ ኢሳይያስ': 66, 'ትንቢተ ኤርምያስ': 52,
+                'ሰቆቃው ኤርምያስ': 5, 'ትንቢተ ሕዝቅኤል': 48, 'ትንቢተ ዳንኤል': 12, 'ትንቢተ ሆሴዕ': 14, 'ትንቢተ ኢዩኤል': 3,
+                'ትንቢተ አሞጽ': 9, 'ትንቢተ አብድዩ': 1, 'ትንቢተ ዮናስ': 4, 'ትንቢተ ሚክያስ': 7, 'ትንቢተ ናሆም': 3,
+                'ትንቢተ ዕንባቆም': 3, 'ትንቢተ ሶፎንያስ': 3, 'ትንቢተ ሐጌ': 2, 'ትንቢተ ዘካርያስ': 14, 'ትንቢተ ሚልክያስ': 4
+            },
+            'አዲስ ኪዳን': {
+                'የማቴዎስ ወንጌል': 28, 'የማርቆስ ወንጌል': 16, 'የሉቃስ ወንጌል': 24, 'የዮሐንስ ወንጌል': 21,
+                'የሐዋርያት ሥራ': 28, 'ወደ ሮሜ ሰዎች': 16, '1ኛ ቆሮንቶስ': 16, '2ኛ ቆሮንቶስ': 13,
+                'ወደ ገላትያ ሰዎች': 6, 'ወደ ኤፌሶን ሰዎች': 6, 'ወደ ፊልጵስዩስ ሰዎች': 4, 'ወደ ቆላስይስ ሰዎች': 4,
+                '1ኛ ተሰሎንቄ': 5, '2ኛ ተሰሎንቄ': 3, '1ኛ ጢሞቴዎስ': 6, '2ኛ ጢሞቴዎስ': 4,
+                'ወደ ቲቶ': 3, 'ወደ ፊልሞን': 1, 'ወደ ዕብራውያን': 13, 'የያዕቆብ መልእክት': 5,
+                '1ኛ ጴጥሮስ': 5, '2ኛ ጴጥሮስ': 3, '1ኛ ዮሐንስ': 5, '2ኛ ዮሐንስ': 1,
+                '3ኛ ዮሐንስ': 1, 'የይሁዳ መልእክት': 1, 'የዮሐንስ ራእይ': 22
+            }
+        };
+
+        function updateUI() {
+            const lang = translations[currentLanguage];
+            introTitle.textContent = lang.introTitle;
+            introSubtitle.textContent = lang.introSubtitle;
+            userNameInput.placeholder = lang.userNamePlaceholder;
+            startBtn.textContent = lang.startBtn;
+            menuTitle.textContent = lang.menuTitle;
+            languageLabel.textContent = lang.languageLabel;
+            brightnessLabel.textContent = lang.brightnessLabel;
+            restartBtn.textContent = lang.restartBtn;
+            showChatBtn.textContent = lang.showChatBtn;
+            userInput.placeholder = lang.userInputPlaceholder;
+            backText.textContent = lang.backText;
+            prevPageText.textContent = lang.prevPageText;
+            nextPageText.textContent = lang.nextPageText;
+        }
+
+        function switchView(view) {
+            if (view === 'chat') {
+                chatView.classList.add('active');
+                textView.classList.remove('active');
+            } else if (view === 'text') {
+                chatView.classList.remove('active');
+                textView.classList.add('active');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            messageElement.innerHTML = `<p>${text}</p>`;
+            chatHistory.appendChild(messageElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function showLoading() {
+            const loadingElement = document.createElement('div');
+            loadingElement.classList.add('loading', 'self-start', 'ml-4', 'mt-4');
+            loadingElement.id = 'loading-spinner';
+            chatHistory.appendChild(loadingElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingElement = document.getElementById('loading-spinner');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const userText = userInput.value.trim();
+            if (userText === '') return;
+
+            addMessage(userText, 'user');
+            userInput.value = '';
+            showLoading();
+
+            try {
+                // Keep the prompt in Amharic for consistent Bible responses
+                const prompt = `በመጽሐፍ ቅዱስ መሠረት ለሚቀጥለው ጥያቄ በአማርኛ መልስ ስጥ። ጥያቄው፡ "${userText}"።`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: {
+                        parts: [{ text: "የመጽሐፍ ቅዱስን ጽሑፍ ብቻ በንጹህ እና በቀጥተኛ መንገድ መልስ። ሌላ ምንም ዓይነት ተጨማሪ መረጃ ወይም ማብራሪያ አታካትት።" }]
+                    },
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const botText = result.candidates?.[0]?.content?.parts?.[0]?.text || translations[currentLanguage].chatErrorMessage;
+                
+                hideLoading();
+                addMessage(botText, 'bot');
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                hideLoading();
+                addMessage(translations[currentLanguage].chatErrorMessage, 'bot');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function renderTestaments() {
+            menuContent.innerHTML = '';
+            for (const testament in books) {
+                const btn = document.createElement('button');
+                btn.classList.add('menu-btn');
+                btn.textContent = testament;
+                btn.onclick = () => renderBooks(testament);
+                menuContent.appendChild(btn);
+            }
+        }
+
+        function renderBooks(testament) {
+            menuContent.innerHTML = `<button class="menu-btn mb-2 back-btn" onclick="renderTestaments()">← ${translations[currentLanguage].backText}</button>`;
+            const bookList = books[testament];
+            for (const book in bookList) {
+                const btn = document.createElement('button');
+                btn.classList.add('menu-btn');
+                btn.textContent = book;
+                btn.onclick = () => loadChapter(book, 1);
+                menuContent.appendChild(btn);
+            }
+        }
+
+        function paginateText(text, pageSize = 1500) {
+            const pages = [];
+            let currentPageText = '';
+            const sentences = text.split(/(?<=[.?!])\s+/);
+            
+            for (const sentence of sentences) {
+                if (currentPageText.length + sentence.length < pageSize) {
+                    currentPageText += sentence + ' ';
+                } else {
+                    pages.push(currentPageText.trim());
+                    currentPageText = sentence + ' ';
+                }
+            }
+            if (currentPageText.length > 0) {
+                pages.push(currentPageText.trim());
+            }
+            return pages;
+        }
+
+        async function loadChapter(book, chapter) {
+            switchView('text');
+            menuSidebar.classList.remove('visible');
+            textViewTitle.textContent = translations[currentLanguage].loadingText;
+            textViewContent.innerHTML = '<div class="flex justify-center mt-8"><div class="loading"></div></div>';
+            
+            try {
+                const prompt = `እባክዎን የመጽሐፍ ቅዱስን የ${book} መጽሐፍ ምዕራፍ ${chapter} ከሙሉ ጽሑፍ ጋር በአማርኛ አቅርብልኝ። ጽሑፉ የቅዱሳት መጻሕፍትን ቃላትን ብቻ የያዘ ይሁን።`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: {
+                        parts: [{ text: "የመጽሐፍ ቅዱስን ጽሑፍ ብቻ በንጹህ እና በቀጥተኛ መንገድ መልስ። ሌላ ምንም ዓይነት ተጨማሪ መረጃ ወይም ማብራሪያ አታካትት።" }]
+                    },
+                };
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || translations[currentLanguage].noChapterText(book, chapter);
+                
+                currentChapterText = paginateText(text);
+                currentPage = 0;
+                displayCurrentPage(`${book} ምዕራፍ ${chapter}`);
+
+            } catch (error) {
+                console.error('Error fetching chapter:', error);
+                textViewTitle.textContent = translations[currentLanguage].errorText;
+                textViewContent.innerHTML = `<p class="text-red-600">${translations[currentLanguage].errorMessage}</p>`;
+            }
+        }
+
+        function displayCurrentPage(title) {
+            if (currentChapterText.length > 0) {
+                textViewTitle.textContent = title;
+                textViewContent.innerHTML = `<p>${currentChapterText[currentPage]}</p>`;
+                pageInfo.textContent = translations[currentLanguage].pageInfo(currentPage + 1, currentChapterText.length);
+                prevPageBtn.disabled = currentPage === 0;
+                nextPageBtn.disabled = currentPage === currentChapterText.length - 1;
+            }
+        }
+
+        function restartApp() {
+            introScreen.style.opacity = '1';
+            introScreen.style.visibility = 'visible';
+            mainApp.classList.remove('active');
+            userNameInput.value = '';
+            chatHistory.innerHTML = '';
+            currentChapterText = [];
+            currentPage = 0;
+            userName = '';
+            // Reset language and theme to default
+            currentLanguage = 'am';
+            languageSelect.value = 'am';
+            document.body.classList.remove('light-mode');
+            themeToggle.checked = false;
+            updateUI();
+        }
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                displayCurrentPage(textViewTitle.textContent);
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < currentChapterText.length - 1) {
+                currentPage++;
+                displayCurrentPage(textViewTitle.textContent);
+            }
+        });
+        
+        textViewBackBtn.addEventListener('click', () => {
+            switchView('chat');
+        });
+
+        showChatBtn.addEventListener('click', () => {
+            switchView('chat');
+            menuSidebar.classList.remove('visible');
+        });
+
+        menuToggleBtn.addEventListener('click', () => {
+            menuSidebar.classList.toggle('visible');
+        });
+
+        restartBtn.addEventListener('click', restartApp);
+
+        startBtn.addEventListener('click', () => {
+            const name = userNameInput.value.trim();
+            if (name) {
+                userName = name;
+                introScreen.style.opacity = '0';
+                introScreen.style.visibility = 'hidden';
+                mainApp.classList.add('active');
+                
+                addMessage(translations[currentLanguage].initialGreeting(userName), 'bot');
+
+                renderTestaments();
+            } else {
+                userNameInput.placeholder = translations[currentLanguage].userNamePlaceholder;
+            }
+        });
+
+        userNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startBtn.click();
+            }
+        });
+        
+        languageSelect.addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            updateUI();
+            if (chatView.classList.contains('active')) {
+                // Update greeting if on chat screen
+                chatHistory.innerHTML = '';
+                addMessage(translations[currentLanguage].initialGreeting(userName), 'bot');
+            }
+        });
+
+        themeToggle.addEventListener('change', (e) => {
+            document.body.classList.toggle('light-mode');
+        });
+
+        updateUI();
+
+    </script>
+</body>
+</html>
